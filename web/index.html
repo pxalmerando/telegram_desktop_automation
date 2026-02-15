@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Desktop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/eel.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: {
+                            50: '#2a2a3e',
+                            100: '#1e1e2e',
+                            200: '#181825',
+                            300: '#11111b',
+                            400: '#313244',
+                            500: '#45475a',
+                            600: '#585b70',
+                            700: '#6c7086',
+                        },
+                        accent: {
+                            primary: '#a855f7',
+                            secondary: '#ec4899',
+                            tertiary: '#06b6d4',
+                            success: '#22c55e',
+                            warning: '#f59e0b',
+                            danger: '#ef4444',
+                        },
+                        glass: {
+                            light: 'rgba(255, 255, 255, 0.05)',
+                            medium: 'rgba(255, 255, 255, 0.1)',
+                            heavy: 'rgba(255, 255, 255, 0.15)',
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full font-sans bg-dark-300 text-gray-100 overflow-hidden">
+    <!-- Animated Background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div class="absolute top-1/2 -left-40 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 1s;"></div>
+        <div class="absolute -bottom-40 right-1/3 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 2s;"></div>
+    </div>
+
+    <div class="relative flex h-full">
+        <!-- Main Content (no sidebar — Telegram-only desktop app) -->
+        <main class="flex-1 overflow-auto">
+            <!-- Header -->
+            <header class="sticky top-0 z-10 bg-dark-300/80 backdrop-blur-xl border-b border-white/5 px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/25">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Telegram</h2>
+                            <p class="text-sm text-gray-500 mt-0.5">Desktop Dashboard</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div id="connection-indicator" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-white/5">
+                            <div class="w-2 h-2 rounded-full bg-green-400 pulse-dot"></div>
+                            <span class="text-xs text-gray-400">Connected</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="p-8">
+                <!-- Analytics Bar -->
+                <div id="analytics-bar" class="mb-4">
+                    <!-- Toggle + Period selector -->
+                    <div class="flex items-center justify-between mb-3">
+                        <button onclick="toggleAnalytics()" class="flex items-center space-x-2 group">
+                            <svg id="analytics-chevron" class="w-4 h-4 text-gray-500 group-hover:text-white transition-all transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                            <span class="text-sm font-semibold text-gray-400 group-hover:text-white transition-colors">Analytics</span>
+                        </button>
+                        <div id="analytics-controls" class="flex items-center space-x-2">
+                            <select id="analytics-period" onchange="loadAnalytics()"
+                                    class="px-2.5 py-1 bg-dark-200/50 border border-white/10 rounded-lg text-[11px] text-white outline-none focus:border-purple-500/50">
+                                <option value="7">Last 7 days</option>
+                                <option value="14">Last 14 days</option>
+                                <option value="30">Last 30 days</option>
+                            </select>
+                            <button onclick="loadAnalytics()" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all" title="Refresh">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Expandable content -->
+                    <div id="analytics-content" class="hidden">
+                        <!-- Stat cards row -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-3">
+                            <div class="bg-dark-200/50 backdrop-blur-xl rounded-xl border border-white/5 p-3">
+                                <div class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Today</div>
+                                <div class="text-xl font-bold text-white" id="stat-today-total">-</div>
+                                <div class="text-[10px] text-gray-500 mt-0.5"><span id="stat-today-incoming" class="text-green-400">0</span> in</div>
+                            </div>
+                            <div class="bg-dark-200/50 backdrop-blur-xl rounded-xl border border-white/5 p-3">
+                                <div class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Unique Chats</div>
+                                <div class="text-xl font-bold text-cyan-400" id="stat-unique-chats">-</div>
+                                <div class="text-[10px] text-gray-500 mt-0.5">wrote you today</div>
+                            </div>
+                            <div class="bg-dark-200/50 backdrop-blur-xl rounded-xl border border-white/5 p-3">
+                                <div class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Total Messages</div>
+                                <div class="text-xl font-bold text-purple-400" id="stat-total">-</div>
+                                <div class="text-[10px] text-gray-500 mt-0.5">in period</div>
+                            </div>
+                            <div class="bg-dark-200/50 backdrop-blur-xl rounded-xl border border-white/5 p-3">
+                                <div class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Incoming</div>
+                                <div class="text-xl font-bold text-green-400" id="stat-incoming">-</div>
+                                <div class="text-[10px] text-gray-500 mt-0.5">received</div>
+                            </div>
+                            <div class="bg-dark-200/50 backdrop-blur-xl rounded-xl border border-white/5 p-3">
+                                <div class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Outgoing</div>
+                                <div class="text-xl font-bold text-blue-400" id="stat-outgoing">-</div>
+                                <div class="text-[10px] text-gray-500 mt-0.5">sent</div>
+                            </div>
+                            <div class="bg-dark-200/50 backdrop-blur-xl rounded-xl border border-white/5 p-3">
+                                <div class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">AI Replies</div>
+                                <div class="text-xl font-bold text-amber-400" id="stat-auto-replies">-</div>
+                                <div class="text-[10px] text-gray-500 mt-0.5">auto-generated</div>
+                            </div>
+                        </div>
+
+                        <!-- Chart + Account breakdown -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                            <!-- Chart -->
+                            <div class="lg:col-span-2 bg-dark-200/50 backdrop-blur-xl rounded-xl border border-white/5 p-4">
+                                <h4 class="text-xs font-semibold text-gray-400 mb-3">Messages per Day</h4>
+                                <div id="analytics-chart" class="h-32"></div>
+                            </div>
+                            <!-- Top accounts -->
+                            <div class="bg-dark-200/50 backdrop-blur-xl rounded-xl border border-white/5 p-4">
+                                <h4 class="text-xs font-semibold text-gray-400 mb-3">Top Accounts</h4>
+                                <div id="analytics-accounts" class="space-y-2 max-h-32 overflow-y-auto custom-scrollbar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex h-[calc(100vh-140px)] space-x-4" id="main-panels">
+
+                    <!-- LEFT PANEL: Account List + Chat List -->
+                    <div class="w-80 flex flex-col bg-dark-200/50 backdrop-blur-xl rounded-2xl border border-white/5 overflow-hidden flex-shrink-0">
+
+                        <!-- Header with Add Account + Settings buttons -->
+                        <div class="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+                            <h3 class="text-sm font-semibold text-white">Accounts</h3>
+                            <div class="flex items-center space-x-1.5">
+                                <button onclick="openSettingsModal()"
+                                        class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all"
+                                        title="Settings">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </button>
+                                <button onclick="openTransferModal()"
+                                        class="relative group p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+                                    </svg>
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-dark-100 border border-white/10 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50">
+                                        <p class="text-xs text-white font-medium">Database Transfer</p>
+                                        <p class="text-[10px] text-gray-400 mt-0.5">Transfer local data to remote MySQL</p>
+                                        <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-2 h-2 bg-dark-100 border-r border-b border-white/10 rotate-45"></div>
+                                    </div>
+                                </button>
+                                <button onclick="showAddAccountModal()"
+                                        class="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg shadow-purple-500/25"
+                                        title="Add Account">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="px-4 py-2">
+                            <input type="text" id="account-search" placeholder="Search accounts..."
+                                   class="w-full px-3 py-2 bg-dark-100/50 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all"
+                                   oninput="filterAccounts(this.value)">
+                        </div>
+
+                        <!-- Scrollable Account List -->
+                        <div id="accounts-list" class="flex-1 overflow-y-auto custom-scrollbar px-2 py-1 space-y-1">
+                            <div id="accounts-loading" class="flex flex-col items-center py-8 space-y-3">
+                                <div class="shimmer w-full h-12 rounded-xl mx-2"></div>
+                                <div class="shimmer w-full h-12 rounded-xl mx-2"></div>
+                                <div class="shimmer w-full h-12 rounded-xl mx-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- Total unread footer -->
+                        <div id="total-unread-footer" class="px-4 py-2 border-t border-white/5 text-xs text-gray-500 hidden">
+                            Total unread: <span id="total-unread-count" class="text-purple-400 font-semibold">0</span>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT PANEL: Chat Messages View -->
+                    <div class="flex-1 flex flex-col bg-dark-200/50 backdrop-blur-xl rounded-2xl border border-white/5 overflow-hidden">
+
+                        <!-- Chat Header -->
+                        <div id="chat-header" class="px-6 py-3 border-b border-white/5 hidden">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div id="chat-avatar" class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center mr-3">
+                                        <span id="chat-avatar-letter" class="text-white font-semibold">?</span>
+                                    </div>
+                                    <div>
+                                        <h4 id="chat-title" class="font-semibold text-white text-sm">Select a chat</h4>
+                                        <p id="chat-subtitle" class="text-xs text-gray-500">No chat selected</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="refreshCurrentChat()" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all" title="Refresh">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Messages Area -->
+                        <div id="messages-area" class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+                            <div id="no-chat-selected" class="flex flex-col items-center justify-center h-full">
+                                <div class="w-20 h-20 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-4">
+                                    <svg class="w-10 h-10 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-gray-400 font-medium">Select an account and chat</p>
+                                <p class="text-gray-500 text-sm mt-1">Messages will appear here</p>
+                            </div>
+                        </div>
+
+                        <!-- Message Input -->
+                        <div id="message-input-area" class="px-4 py-3 border-t border-white/5 hidden">
+                            <form onsubmit="handleSendMessage(event)" class="flex space-x-3">
+                                <input type="text" id="message-input" placeholder="Type a message..."
+                                       class="flex-1 px-4 py-3 bg-dark-100/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all">
+                                <button type="submit" id="send-btn"
+                                        class="px-5 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl font-medium text-white transition-all shadow-lg shadow-purple-500/25">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Live Log Panel -->
+    <div id="log-panel" class="fixed bottom-0 left-0 right-0 z-40 transform translate-y-full transition-transform duration-300 ease-in-out">
+        <div class="bg-dark-300/95 backdrop-blur-xl border-t border-white/10 shadow-2xl shadow-black/50">
+            <!-- Log Header -->
+            <div class="flex items-center justify-between px-4 py-2 border-b border-white/5 cursor-pointer" onclick="toggleLogPanel()">
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        <span class="text-sm font-semibold text-white">Live Logs</span>
+                    </div>
+                    <span id="log-count-badge" class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 text-[10px] font-semibold">0</span>
+                    <div id="log-level-counts" class="flex items-center space-x-2 text-[10px]">
+                        <span id="log-error-count" class="text-red-400 hidden">0 errors</span>
+                        <span id="log-warning-count" class="text-yellow-400 hidden">0 warnings</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <!-- Filter -->
+                    <select id="log-level-filter" onchange="filterLogs()" onclick="event.stopPropagation()"
+                            class="px-2 py-1 bg-dark-200/50 border border-white/10 rounded-lg text-[11px] text-white outline-none">
+                        <option value="all">All Levels</option>
+                        <option value="ERROR">Errors</option>
+                        <option value="WARNING">Warnings</option>
+                        <option value="INFO">Info</option>
+                        <option value="DEBUG">Debug</option>
+                    </select>
+                    <!-- Search -->
+                    <input type="text" id="log-search" placeholder="Search logs..." onclick="event.stopPropagation()" oninput="filterLogs()"
+                           class="w-40 px-2 py-1 bg-dark-200/50 border border-white/10 rounded-lg text-[11px] text-white placeholder-gray-500 outline-none focus:border-purple-500/50">
+                    <!-- Auto-scroll toggle -->
+                    <button id="log-autoscroll-btn" onclick="event.stopPropagation(); toggleLogAutoScroll()"
+                            class="p-1.5 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-all" title="Auto-scroll">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    </button>
+                    <!-- Clear -->
+                    <button onclick="event.stopPropagation(); clearLogs()"
+                            class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all" title="Clear logs">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                    <!-- Collapse chevron -->
+                    <svg id="log-chevron" class="w-4 h-4 text-gray-400 transform rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+            <!-- Log Content -->
+            <div id="log-content" class="h-52 overflow-y-auto custom-scrollbar font-mono text-[11px] leading-relaxed">
+                <div id="log-entries" class="px-4 py-2 space-y-0.5"></div>
+                <div id="log-empty" class="flex items-center justify-center h-full text-gray-500 text-xs">
+                    No log entries yet
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Toggle Button (fixed bottom-left) -->
+    <button id="log-toggle-btn" onclick="toggleLogPanel()"
+            class="fixed bottom-4 left-4 z-50 p-2.5 rounded-xl bg-dark-200/80 backdrop-blur-xl border border-white/10 text-gray-400 hover:text-white hover:border-purple-500/30 transition-all shadow-lg group"
+            title="Toggle Live Logs">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        <span id="log-error-dot" class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 border-2 border-dark-300 hidden"></span>
+    </button>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[60] space-y-3"></div>
+
+    <!-- Modal Container -->
+    <div id="modal-container"></div>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/telegram.js"></script>
+</body>
+</html>

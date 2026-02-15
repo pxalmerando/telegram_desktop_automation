@@ -1,0 +1,9 @@
+eel
+pymysql
+cryptography
+SQLAlchemy
+Telethon
+requests
+Pillow
+python-dotenv
+pyinstaller
