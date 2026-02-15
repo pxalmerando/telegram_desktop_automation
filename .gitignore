@@ -16,15 +16,18 @@ venv/
 *.db-shm
 *.db-wal
 
-# Telegram sessions
-telegram_sessions/
+# Telegram sessions (keep folder, ignore contents)
+telegram_sessions/*
+!telegram_sessions/.gitkeep
 
-# Media uploads & generated files
-media_uploads/
+# Media uploads & generated files (keep folders, ignore contents)
+media_uploads/*
+!media_uploads/.gitkeep
 personalized_test/
 
-# Browser profile (Eel)
-app_browser_profile/
+# Browser profile (keep folder, ignore contents)
+app_browser_profile/*
+!app_browser_profile/.gitkeep
 
 # Environment & secrets
 .env
